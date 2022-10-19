@@ -8,13 +8,13 @@ set_optimizer_attribute(model, "local_optimizer", :LD_LBFGS)
 
 #=========== Variables Decleration ===========#
 
-n = 1.3 # Capital Investment Pipe Diameter Cost Correlation Exponent 
-C_inv = 3.74*7950*pi/(4*8760) # Investment Capital Coefficient per Annum [=] €/m⋅year
+n = 1.24 # Capital Investment Pipe Diameter Cost Correlation Exponent 
+C_inv = 3.74*7950*pi/(4*8760) # Investment Capital Coefficient per Annum [=] €/year
 ρ = 997 # Water Density [=] kg/m³
-G = 10 # Molar Flow [=] kg/s
+G = 5 # Molar Flow [=] kg/s
 μ = 8.90e-4 # Water Viscocity [=] Pa⋅s 
 η = 0.85 # Pump Efficiency
-C_op = 0.117*8760/1000 # Operational Costs Coefficient per Annum [=] €⋅s³/m³⋅kg⋅year
+C_op = 0.117*8760/1000 # Operational Costs Coefficient per Annum [=] €⋅s³/m²⋅kg⋅year
 
 
 #=========== Optimization ===========#
@@ -24,9 +24,9 @@ D=0 => Cost -> ∞ and has no physical significance either. =#
 @variable(model, 0.01 <= D)
 
 # Setting the Non-Linear Objective Cost function and specifying we want the Minimum value of it
-@NLobjective(model, Min, C_inv*(D^n) + 0.142*(C_op*(η^-1)*(G^2.8)*(μ^0.2)*(ρ^-2)*(D^-4.8)))
+@NLobjective(model, Min, C_inv*(D^n) + 0.2548*(C_op*(η^-1)*(G^2.975)*(μ^0.025)*(ρ^-2)*(D^-4.975)))
 
-# Running the optimization
+# Running the optimization  
 JuMP.optimize!(model)
 
 println("✅ The diameter that minimizes total costs is $(round(value(D), digits=4)) m.")
@@ -34,7 +34,7 @@ println("✅ The diameter that minimizes total costs is $(round(value(D), digits
 #=========== Plotting ===========#
 
 investmentCosts(d) = C_inv*(d^n)
-operationalCosts(d) = 0.142*(C_op*(η^-1)*(G^2.8)*(μ^0.2)*(ρ^-2)*(d^-4.8))
+operationalCosts(d) = 0.2548*(C_op*(η^-1)*(G^2.975)*(μ^0.025)*(ρ^-2)*(d^-4.975))
 totalCosts(d) = investmentCosts(d) + operationalCosts(d)
 
 # Using plotly.js as backend. If you don't want to use it you can just comment it out.
@@ -43,7 +43,7 @@ plotlyjs()
 plot(investmentCosts, 0.1, 1,
         legend_position=:right, ls=:dash, label="Investment Costs", size=(1200,800), 
         dpi=1000, title = "Costs per Annum vs Diameter for a SS Pipe", lw = 2,
-        xlabel="Diameter (m)", ylabel="Annual Costs (€/year)", xlims = (0.1,1), xticks=0.1:0.1:1
+        xlabel="Diameter (m)", ylabel="Annual Costs (€/m⋅year)", xlims = (0.1,1), xticks=0.1:0.1:1
     )
 plot!(operationalCosts, 0.1, 1, ls=:dash, lw = 2, label="Operational Costs")
 plot!(totalCosts, 0.1, 1, lw = 2, label="Total Costs")
