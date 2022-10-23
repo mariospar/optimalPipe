@@ -6,13 +6,13 @@ model = Model(NLopt.Optimizer)
 set_optimizer_attribute(model, "algorithm", :AUGLAG)
 set_optimizer_attribute(model, "local_optimizer", :LD_LBFGS)
 
-#=========== Variables Decleration ===========#
+#=========== Variables Declaration ===========#
 
 n = 1.24 # Capital Investment Pipe Diameter Cost Correlation Exponent 
 C_inv = 3.74*7950*pi/(4*8760) # Investment Capital Coefficient per Annum [=] €/year
 ρ = 997 # Water Density [=] kg/m³
 G = 5 # Molar Flow [=] kg/s
-μ = 8.90e-4 # Water Viscocity [=] Pa⋅s 
+μ = 8.90e-4 # Water Viscosity [=] Pa⋅s 
 η = 0.85 # Pump Efficiency
 C_op = 0.117*8760/1000 # Operational Costs Coefficient per Annum [=] €⋅s³/m²⋅kg⋅year
 
@@ -37,7 +37,7 @@ investmentCosts(d) = C_inv*(d^n)
 operationalCosts(d) = 0.2548*(C_op*(η^-1)*(G^2.975)*(μ^0.025)*(ρ^-2)*(d^-4.975))
 totalCosts(d) = investmentCosts(d) + operationalCosts(d)
 
-# Using plotly.js as backend. If you don't want to use it you can just comment it out.
+# Using plotly.js as backend. If you don't want to use it, you can just comment it out.
 plotlyjs()
 
 plot(investmentCosts, 0.1, 1,
@@ -52,13 +52,13 @@ scatter!([value(D)], [totalCosts(value(D))], label="Minimum")
 # Exports the total plot
 savefig(joinpath("plots","Costs vs Diameter.png"))
 
-println("📉 A plot has been saved under the `plots` directtory")
+println("📉 A plot has been saved under the `plots` directory")
 
 #=========== Nearest standard ===========#
 
 D_inch = value(D)u"m" |> u"inch" # Converting m -> inches so as to match the standard
 
-# Reading the standard dimenstions
+# Reading the standard dimensions
 df = CSV.read(joinpath("data", "schedules.csv"), DataFrame)
 schedules = copy(df)
 
